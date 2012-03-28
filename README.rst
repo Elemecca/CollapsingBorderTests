@@ -11,10 +11,10 @@ Test Cases
 
 ``offset-props.js``
     Tests how various border styles affect the ``offsetTop``,
-    ``offsetLeft``, ``offsetWidth``, and ``offsetHeight`` properties
-    of the element object in JavaScript. These effects are
-    implementation-defined because the properties' values are specified
-    relative to the element's border edge and CSS fails to explain what
-    the border edge means for cells in a table with collapsing borders.
+    ``offsetLeft``, ``offsetWidth``, and ``offsetHeight`` properties of
+    table cells in JavaScript. These effects are implementation-defined
+    because the properties' values are specified relative to the
+    element's border edge and CSS fails to specify what the border edge
+    means for cells in a table with collapsing borders.
 
 .. vim: se sts=4 sw=4 et :miv
