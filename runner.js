@@ -1,10 +1,26 @@
 
 // public variables
-var addTest, runTests, table, log, resetTable;
+var Runner, runTests, table, log;
 
 (function(){ // anonymous closure scope
 
-var tests = {};
+var Suite = function (name) {
+    this.name = name;
+    this.tests = [];
+};
+var S = Suite.prototype = {};
+
+S.addTest = function (name, func) {
+    this.tests.push({ name: name, func: func });
+};
+
+Runner = {};
+var suites = [];
+Runner.addSuite = function (name) {
+    var suite = new Suite( name );
+    suites.push( suite );
+    return suite;
+}
 
 // DOM node references
 var input, output, tableWrapper, tableBase;
@@ -17,7 +33,7 @@ log = function log (text) {
     if (scroll) output.scrollTop = output.scrollHeight - height;
 }
 
-resetTable = function resetTable() {
+function resetTable() {
     while (tableWrapper.firstChild)
         tableWrapper.removeChild( tableWrapper.firstChild );
 
@@ -37,10 +53,60 @@ resetTable = function resetTable() {
     };
 }
 
-addTest = function addTest (name, func) {
-    if (name in tests) throw new Error(
-        "test named '" + name + "' already exists" );
-    tests[ name ] = func;
+var currentSuite, currentTest;
+var inputRequest = {};
+
+window.addEventListener( 'message', function (event) {
+    if (window !== event.source) return;
+    if ('runNext' !== event.data) return;
+
+    runNext();    
+}, false );
+
+function postponeNext() {
+   window.postMessage( 'runNext', "*" );
+}
+
+function runNext() {
+    var suite = suites[ currentSuite ];
+    currentTest++;
+
+    // print the suite header before the first test
+    if (0 === currentTest)
+        log( "\n======== " + suite.name + " ==========" );
+
+    // if we're out of tests in this suite, go to the next one
+    if (currentTest >= suite.tests.length) {
+        log( "\n==== end suite" );
+        
+        // proceed to the next suite
+        currentTest = -1;
+        currentSuite++;
+        
+        // if we're out of suites, return
+        if (currentSuite >= suites.length) {
+            log( "\n==========\ndone" );
+            return;
+        }
+
+        // postpone to run the next test
+        postponeNext();
+        return;
+    }
+
+    // run the current test
+    var test = suite.tests[ currentTest ];
+    log( "\n---- " + test.name + " ----" );
+    try {
+        resetTable();
+        test.func();
+    } catch (caught) {
+        // TODO: handle input requests
+        log( "error: " + caught.toString() );
+    }
+
+    // postpone to run the next test
+    postponeNext();
 }
 
 runTests = function runTests() {
@@ -59,22 +125,10 @@ runTests = function runTests() {
     tableBase = table.table.cloneNode( true );
     resetTable();
 
-    log( "starting test run" );
-
-    for (var name in tests) {
-        if (!tests.hasOwnProperty( name )) continue;
-        log( "\n---- " + name + " ----" );
-        
-        try {
-            tests[ name ]();
-        } catch (caught) {
-            log( "error: " + caught.toString() );
-        }
-
-        resetTable();
-    }
-
-    log( "\n----------\ndone" );
+    log( "starting test run\n==========" );
+    currentSuite = 0;
+    currentTest = -1;
+    postponeNext();
 }
 
 })(); // end anonymous closure scope

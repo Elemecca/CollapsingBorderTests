@@ -20,76 +20,78 @@ function assertProps (props) {
        + 'offsetHeight:  ' + assertProp( props, 'offsetHeight' ) );
 }
 
-addTest( 'offsets / top / local', function() {
+var suite = Runner.addSuite( 'offset properties' );
+
+suite.addTest( 'top local', function() {
     var props = getProps();
     table.cc.style.borderTop = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / top / remote', function() {
+suite.addTest( 'top remote', function() {
     var props = getProps();
     table.nc.style.borderBottom = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / top / both', function() {
+suite.addTest( 'top both', function() {
     var props = getProps();
     table.cc.style.borderTop = '2px solid black';
     table.nc.style.borderBottom = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / left / local', function() {
+suite.addTest( 'left local', function() {
     var props = getProps();
     table.cc.style.borderLeft = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / left / remote', function() {
+suite.addTest( 'left remote', function() {
     var props = getProps();
     table.wc.style.borderRight = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / left / both', function() {
+suite.addTest( 'left both', function() {
     var props = getProps();
     table.cc.style.borderLeft = '2px solid black';
     table.wc.style.borderRight = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / bottom / local', function() {
+suite.addTest( 'bottom local', function() {
     var props = getProps();
     table.cc.style.borderBottom = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / bottom / remote', function() {
+suite.addTest( 'bottom remote', function() {
     var props = getProps();
     table.sc.style.borderTop = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / bottom / both', function() {
+suite.addTest( 'bottom both', function() {
     var props = getProps();
     table.cc.style.borderBottom = '2px solid black';
     table.sc.style.borderTop = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / right / local', function() {
+suite.addTest( 'right local', function() {
     var props = getProps();
     table.cc.style.borderRight = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / right / remote', function() {
+suite.addTest( 'right remote', function() {
     var props = getProps();
     table.ec.style.borderLeft = '2px solid black';
     assertProps( props );
 });
 
-addTest( 'offsets / right / both', function() {
+suite.addTest( 'right both', function() {
     var props = getProps();
     table.cc.style.borderRight = '2px solid black';
     table.ec.style.borderLeft = '2px solid black';
