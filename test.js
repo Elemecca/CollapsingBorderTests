@@ -1,15 +1,23 @@
 
-var input, output, table, tableWrapper, tableBase;
+// public variables
+var addTest, runTests, table, log, resetTable;
 
-function log (text) {
+(function(){ // anonymous closure scope
+
+var tests = {};
+
+// DOM node references
+var input, output, tableWrapper, tableBase;
+
+log = function log (text) {
     var height = output.clientHeight;
     var scroll = output.scrollTop == output.scrollHeight - height;
 
-    output.appendChild( document.createTextNode( text ) );
+    output.appendChild( document.createTextNode( text + "\n" ) );
     if (scroll) output.scrollTop = output.scrollHeight - height;
 }
 
-function resetTable() {
+resetTable = function resetTable() {
     while (tableWrapper.firstChild)
         tableWrapper.removeChild( tableWrapper.firstChild );
 
@@ -29,7 +37,13 @@ function resetTable() {
     };
 }
 
-function runTests() {
+addTest = function addTest (name, func) {
+    if (name in tests) throw new Error(
+        "test named '" + name + "' already exists" );
+    tests[ name ] = func;
+}
+
+runTests = function runTests() {
     // get rid of the start button
     var button = document.getElementById( 'start-button' );
     button.parentNode.removeChild( button );
@@ -45,7 +59,23 @@ function runTests() {
     tableBase = table.table.cloneNode( true );
     resetTable();
 
-    log( "finished\n" );
+    log( "starting test run" );
+
+    for (var name in tests) {
+        if (!tests.hasOwnProperty( name )) continue;
+        log( "\n---- " + name + " ----" );
+        
+        try {
+            tests[ name ]();
+        } catch (caught) {
+            log( "error: " + caught.toString() );
+        }
+
+        resetTable();
+    }
+
+    log( "\n----------\ndone" );
 }
 
+})(); // end anonymous closure scope
 // vim: se sts=4 sw=4 et :miv
