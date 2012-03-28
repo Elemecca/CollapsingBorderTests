@@ -1,0 +1,34 @@
+<html>
+  <head>
+    <title>Test - Offset Properties</title>
+    
+    <script type="text/javascript" src="test.js"></script>
+    <link rel="stylesheet" type="text/css" href="test.css" />
+  </head>
+  <body>
+    <div id="test-wrapper" class="section">
+      <table id="test-table">
+        <tr>
+          <td id="test-cell-nw">North-West</td>
+          <td id="test-cell-nc">North</td>
+          <td id="test-cell-ne">North-East</td>
+        </tr><tr>
+          <td id="test-cell-wc">West</td>
+          <td id="test-cell-cc">Center</td>
+          <td id="test-cell-ec">East</td>
+        </tr><tr>
+          <td id="test-cell-sw">South-West</td>
+          <td id="test-cell-sc">South</td>
+          <td id="test-cell-se">South-East</td>
+        </tr>
+      </table>
+    </div>
+    
+    <div id="input" class="section">
+      <button id="start-button" onclick="runTests();">Start Tests</button>
+    </div>
+    
+    <pre id="output" class="section"></pre>
+  </body>
+</html>
+<!-- vim: se sts=2 sw=2 et :miv -->

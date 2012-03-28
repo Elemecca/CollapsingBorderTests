@@ -1,0 +1,44 @@
+#test-wrapper {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    width: 350px;
+    height: 120px;
+}
+
+#input {
+    position: fixed;
+    top: 138px;
+    left: 5px;
+    width: 350px;
+    bottom: 5px;
+}
+
+#output {
+    position: fixed;
+    top: 5px;
+    left: 368px;
+    right: 5px;
+    bottom: 5px;
+
+    overflow: scroll;
+}
+
+.section {
+    margin: 0;
+    padding: 3px;
+    border: 1px solid black;
+}
+
+#test-table {
+    border-collapse: collapse;
+}
+
+#test-table td {
+    width: 100px;
+    height: 30px;
+    text-align: center;
+    background: #EEEEEE;
+}
+
+/* vim: se sts=4 sw=4 et :miv */
