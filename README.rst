@@ -14,7 +14,7 @@ will re-appear.
 Test Cases
 ==========
 
-``offset-props.js``
+offset properties (``offset-props.js``)
     Tests how various border styles affect the ``offsetTop``,
     ``offsetLeft``, ``offsetWidth``, and ``offsetHeight`` properties of
     table cells in JavaScript. These effects are implementation-defined
@@ -22,7 +22,7 @@ Test Cases
     element's border edge and CSS fails to specify what the border edge
     means for cells in a table with collapsing borders.
 
-``border-center.js``
+centered borders (``border-center.js``)
     The border lines of a table with collapsed borders are drawn
     centered over the division between cells. When a border is an odd
     number of pixels thick it cannot be centered evenly over the
