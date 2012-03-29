@@ -8,6 +8,10 @@ var Runner, table, log;
 var rule = "\n========================================"
         + "================================\n";
 
+/** Binds a callback to a DOM event on an object.
+ * This is an abstraction layer over the cross browser differences in
+ * the event listener API.
+ */
 function attach (target, name, callback) {
     if (target.addEventListener) {
         target.addEventListener( name, callback, true );
@@ -31,15 +35,20 @@ S.addTest = function (name, func) {
 Runner = {};
 var suites = [];
 var runSuites;
+
 Runner.addSuite = function (name) {
     var suite = new Suite( name );
     suites.push( suite );
     return suite;
 }
 
-// DOM node references
 var input, output, tableWrapper, tableBase, runInput;
+var currentSuite, currentTest;
+var inputRequest = {};
 
+/** Writes a string to the output area.
+ * A newline will be appended to the output string.
+ */
 log = function log (text) {
     var height = output.clientHeight;
     var scroll = output.scrollTop == output.scrollHeight - height;
@@ -48,6 +57,8 @@ log = function log (text) {
     if (scroll) output.scrollTop = output.scrollHeight - height;
 }
 
+/** Resets the test table to its original state.
+ */
 function resetTable() {
     while (tableWrapper.firstChild)
         tableWrapper.removeChild( tableWrapper.firstChild );
@@ -68,14 +79,20 @@ function resetTable() {
     };
 }
 
+/** Clears the input area.
+ */
 function resetInput() {
     while (input.firstChild)
         input.removeChild( input.firstChild );
 }
 
-var currentSuite, currentTest;
-var inputRequest = {};
+/** Pushes a call to {@link #runNext()} to the browser event queue.
+ */
+function postponeNext() {
+   window.postMessage( 'runNext', "*" );
+}
 
+// receives the messages sent by postponeNext
 attach( window, 'message', function (event) {
     if (window !== event.source) return;
     if ('runNext' !== event.data) return;
@@ -83,10 +100,10 @@ attach( window, 'message', function (event) {
     runNext();    
 });
 
-function postponeNext() {
-   window.postMessage( 'runNext', "*" );
-}
-
+/** Advances to and runs the next test.
+ * If there are no more tests in the current suite it advances to the
+ * next suite. If there are no more suites it ends the test run.
+ */
 function runNext() {
     var suite = runSuites[ currentSuite ];
     currentTest++;
@@ -115,9 +132,8 @@ function runNext() {
         return;
     }
 
-    // reset the content areas
+    // reset the content area
     resetTable();
-    resetInput();
 
     // run the current test
     var test = suite.tests[ currentTest ];
@@ -133,6 +149,10 @@ function runNext() {
     postponeNext();
 }
 
+/** Sets up and starts a new test run.
+ * This is called when the "Run Tests" button is clicked. The suites to
+ * be run are selected based on the checkboxes in the input area.
+ */
 function runTests() {
     // build the list of suites to be run
     runSuites = [];
@@ -159,6 +179,7 @@ function runTests() {
     postponeNext();
 }
 
+// one-time initialization code
 attach( window, 'load', function (event) {
     // find the section elements
     input = document.getElementById( 'input' );
