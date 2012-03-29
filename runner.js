@@ -45,6 +45,7 @@ Runner.addSuite = function (name) {
 var input, output, tableWrapper, tableBase, runInput;
 var currentSuite, currentTest;
 var inputRequest = {};
+var inputCallback;
 
 /** Writes a string to the output area.
  * A newline will be appended to the output string.
@@ -141,13 +142,58 @@ function runNext() {
     try {
         test.func();
     } catch (caught) {
-        // TODO: handle input requests
+        // if this is an input request, let the input system handle it
+        if (caught === inputRequest) return;
+
         log( "error: " + caught.toString() );
     }
 
     // postpone to run the next test
     postponeNext();
 }
+
+function inputHandlerChooseImage (event) {
+    var chosen = event.target;
+
+    // clear the input area
+    resetInput();
+
+    // call the input handler
+    try {
+        inputCallback( chosen );
+    } catch (caught) {
+        // they want more input, wait for the event
+        if (caught === inputRequest) return;
+
+        log( "error: " + caught.toString() );
+    }
+
+    // postpone to run the next test
+    postponeNext();
+}
+
+Runner.inputChooseImage = function (choices, callback) {
+    input.appendChild( document.createTextNode(
+        "Click the image below which looks like the test table." ) );
+    input.appendChild( document.createElement( 'br' ) );
+
+    inputCallback = function (chosen) {
+        callback( choices[ chosen.getAttribute( "choice" ) ] );
+    }
+
+    for (var idx = 0; idx < choices.length; idx++) {
+        var choice = choices[ idx ];
+        var img = document.createElement( 'img' );
+        img.src = 'images/' + choice.image;
+        img.title = choice.title;
+        img.className = "input-choose-image";
+        img.setAttribute( "choice", idx );
+        attach( img, 'click', inputHandlerChooseImage );
+        input.appendChild( img );
+    }
+
+    throw inputRequest;
+};
 
 /** Sets up and starts a new test run.
  * This is called when the "Run Tests" button is clicked. The suites to

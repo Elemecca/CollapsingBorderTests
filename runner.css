@@ -47,4 +47,9 @@ ul#suite-list {
     padding: 0;
 }
 
+.input-choose-image {
+    float: left;
+    margin: 3px;
+}
+
 /* vim: se sts=4 sw=4 et :miv */
