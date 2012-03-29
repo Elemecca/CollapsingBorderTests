@@ -1,8 +1,22 @@
 
 // public variables
-var Runner, runTests, table, log;
+var Runner, table, log;
 
 (function(){ // anonymous closure scope
+
+/** 72 column horizontal rule. */
+var rule = "\n========================================"
+        + "================================\n";
+
+function attach (target, name, callback) {
+    if (target.addEventListener) {
+        target.addEventListener( name, callback, true );
+    } else {
+        target.attachEvent( 'on' + name, function() {
+            callback.call( this, window.event );
+        });
+    }
+}
 
 var Suite = function (name) {
     this.name = name;
@@ -16,6 +30,7 @@ S.addTest = function (name, func) {
 
 Runner = {};
 var suites = [];
+var runSuites;
 Runner.addSuite = function (name) {
     var suite = new Suite( name );
     suites.push( suite );
@@ -23,7 +38,7 @@ Runner.addSuite = function (name) {
 }
 
 // DOM node references
-var input, output, tableWrapper, tableBase;
+var input, output, tableWrapper, tableBase, runInput;
 
 log = function log (text) {
     var height = output.clientHeight;
@@ -53,22 +68,27 @@ function resetTable() {
     };
 }
 
+function resetInput() {
+    while (input.firstChild)
+        input.removeChild( input.firstChild );
+}
+
 var currentSuite, currentTest;
 var inputRequest = {};
 
-window.addEventListener( 'message', function (event) {
+attach( window, 'message', function (event) {
     if (window !== event.source) return;
     if ('runNext' !== event.data) return;
 
     runNext();    
-}, false );
+});
 
 function postponeNext() {
    window.postMessage( 'runNext', "*" );
 }
 
 function runNext() {
-    var suite = suites[ currentSuite ];
+    var suite = runSuites[ currentSuite ];
     currentTest++;
 
     // print the suite header before the first test
@@ -84,8 +104,9 @@ function runNext() {
         currentSuite++;
         
         // if we're out of suites, return
-        if (currentSuite >= suites.length) {
-            log( "\n==========\ndone" );
+        if (currentSuite >= runSuites.length) {
+            log( rule + "test run complete" + rule );
+            input.appendChild( runInput );
             return;
         }
 
@@ -94,11 +115,14 @@ function runNext() {
         return;
     }
 
+    // reset the content areas
+    resetTable();
+    resetInput();
+
     // run the current test
     var test = suite.tests[ currentTest ];
     log( "\n---- " + test.name + " ----" );
     try {
-        resetTable();
         test.func();
     } catch (caught) {
         // TODO: handle input requests
@@ -109,12 +133,33 @@ function runNext() {
     postponeNext();
 }
 
-runTests = function runTests() {
-    // get rid of the start button
-    var button = document.getElementById( 'start-button' );
-    button.parentNode.removeChild( button );
-    button = null;
+function runTests() {
+    // build the list of suites to be run
+    runSuites = [];
+    var boxen = runInput.getElementsByTagName( 'input' );
+    for (var idx = 0; idx < boxen.length; idx++) {
+        var box = boxen[ idx ];
+        if (box.checked)
+            runSuites.push( suites[ box.name ] );
+    }
 
+    // give up if no suites are selected
+    if (0 === runSuites.length) {
+        log( "no suites selected, not running" );
+        return;
+    }
+
+    // clear the input area
+    resetInput();
+    
+    // hand off to the test run
+    log( rule + "starting test run" + rule );
+    currentSuite = 0;
+    currentTest = -1;
+    postponeNext();
+}
+
+attach( window, 'load', function (event) {
     // find the section elements
     input = document.getElementById( 'input' );
     output = document.getElementById( 'output' );
@@ -124,12 +169,40 @@ runTests = function runTests() {
     table = { table: document.getElementById( 'test-table' ) };
     tableBase = table.table.cloneNode( true );
     resetTable();
+    
+    runInput = document.createElement( 'div' );
 
-    log( "starting test run\n==========" );
-    currentSuite = 0;
-    currentTest = -1;
-    postponeNext();
-}
+    // create the suite list
+    var list = document.createElement( 'ul' );
+    runInput.appendChild( list );
+    list.id = 'suite-list';
+    for (var idx = 0; idx < suites.length; idx++) {
+        var item = document.createElement( 'li' );
+        
+        var checkbox = document.createElement( 'input' );
+        checkbox.id = 'suite-' + idx;
+        checkbox.type = 'checkbox';
+        checkbox.name = idx;
+        checkbox.checked = true;
+        item.appendChild( checkbox );
+
+        var label = document.createElement( 'label' );
+        label.setAttribute( 'for', checkbox.id );
+        label.appendChild(
+                document.createTextNode( suites[ idx ].name ) );
+        item.appendChild( label );
+
+        list.appendChild( item );
+    }
+
+    // add the start button
+    var button = document.createElement( 'button' );
+    runInput.appendChild( button );
+    attach( button, 'click', runTests );
+    button.appendChild( document.createTextNode( 'Run Tests' ) );
+
+    input.appendChild( runInput );
+});
 
 })(); // end anonymous closure scope
 // vim: se sts=4 sw=4 et :miv

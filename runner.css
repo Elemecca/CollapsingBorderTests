@@ -41,4 +41,10 @@
     background: #EEEEEE;
 }
 
+ul#suite-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
 /* vim: se sts=4 sw=4 et :miv */
