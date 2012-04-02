@@ -10,7 +10,10 @@ function getProps() {
 }
 
 function assertProp (props, name) {
-    return (table.cc[ name ] != props[ name ]) ? 'yes' : 'no';
+    var delta = table.cc[ name ] - props[ name ];
+    if (0 == delta) return '==';
+    if (delta > 0) return '+' + delta;
+    else return '' + delta;
 }
 
 function assertProps (props) {
